@@ -2,9 +2,18 @@ import * as cdk from "@aws-cdk/core";
 import * as ec2 from "@aws-cdk/aws-ec2";
 import * as iam from "@aws-cdk/aws-iam";
 
+require("dotenv").config();
+
+const config = {
+  env: {
+    account: process.env.AWS_ACCOUNT_ID,
+    region: process.env.AWS_REGION,
+  },
+};
+
 export class CdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+    super(scope, id, { ...props, env: config.env });
 
     const vpc = ec2.Vpc.fromLookup(this, "ad-instance-vpc", {
       isDefault: true,
