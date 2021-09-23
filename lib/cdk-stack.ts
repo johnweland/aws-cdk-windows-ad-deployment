@@ -1,6 +1,7 @@
 import * as cdk from "@aws-cdk/core";
 import * as ec2 from "@aws-cdk/aws-ec2";
 import * as iam from "@aws-cdk/aws-iam";
+import * as fs from "fs";
 
 require("dotenv").config();
 
@@ -21,6 +22,12 @@ export class CdkStack extends cdk.Stack {
 
     const role = new iam.Role(this, "ad-instance-role", {
       assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
+      managedPolicies: [
+        {
+          managedPolicyArn:
+            "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+        },
+      ],
     });
 
     const securityGroup = new ec2.SecurityGroup(this, "ad-instance-sg", {
@@ -31,8 +38,8 @@ export class CdkStack extends cdk.Stack {
 
     securityGroup.addIngressRule(
       ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(22),
-      "Allow SSH access from Internet"
+      ec2.Port.tcp(3389),
+      "Allow RDP access from Internet"
     );
     securityGroup.addIngressRule(
       ec2.Peer.anyIpv4(),
@@ -57,12 +64,16 @@ export class CdkStack extends cdk.Stack {
         ec2.InstanceClass.T2,
         ec2.InstanceSize.MICRO
       ),
-      machineImage: new ec2.AmazonLinuxImage({
-        generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
-      }),
+      machineImage: new ec2.WindowsImage(
+        ec2.WindowsVersion.WINDOWS_SERVER_2016_ENGLISH_FULL_BASE
+      ),
       keyName: "test-instance-1-key",
     });
 
+    // .sh or .ps2 file for configuration
+    // instance.addUserData(
+    //   fs.readFileSync('lib/user_script.sh', 'utf8')
+    // )
     new cdk.CfnOutput(this, "ad-instance-public-ip", {
       value: instance.instancePublicIp,
     });
