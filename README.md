@@ -35,10 +35,16 @@ Some AWS CDK to spit out Cloudformation for building EC2 instances of Windows Ac
         chmod 400 ~/.aws/pems/<yourpemfile>
         ```
 ### Useage
-1. Synth your CloudFormation Template 
+1. Synthesize your CloudFormation Template
+    a. _default_ Synthesize as a log output
     ```bash
     cdk synth --profile <yourprofile>
     ```
+    b. Synthesize your template to a .yaml file 
+    ```bash
+    cdk synth --profile <yourprofile> >> <yourfile.yaml>
+    ```
+    
 2. Deploy your CloudFormation Stack
     ```bash
     cdk deploy --profile <yourprofile>
