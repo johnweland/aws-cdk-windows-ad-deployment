@@ -25,6 +25,6 @@ jobs:
         run: npm install 
       - name: Run Tests
         run: npm test
-        env:
-            AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-            AWS_REGION: ${{ secrets.AWS_REGION }}
+        with:
+            aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+            aws-region: ${{ secrets.AWS_REGION }}
