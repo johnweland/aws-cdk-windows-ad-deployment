@@ -35,7 +35,6 @@ export class CdkStack extends cdk.Stack {
       allowAllOutbound: true,
       securityGroupName: "ad-instance-sg",
     });
-
     securityGroup.addIngressRule(
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(3389),
@@ -50,6 +49,86 @@ export class CdkStack extends cdk.Stack {
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(443),
       "Allow HTTPS access from Internet"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.udp(123),
+      "For: W32Time"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(135),
+      "For: RPC Endpoint Mapper"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(464),
+      "For: Kerberos password change"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.udp(464),
+      "For: Kerberos password change"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcpRange(49152, 65535),
+      "For: RPC for LSA, FRS RCP(*), DFRS RCP(*), SAM, Netlogon(*)"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(389),
+      "For: LDAP"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.udp(389),
+      "For: LDAP"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(636),
+      "For: LDAP SSL"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(3268),
+      "For: LDAP GC"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(3269),
+      "For: LDAP GC SSL"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(53),
+      "For: DNS"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.udp(636),
+      "For: DNS"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(88),
+      "For: Kerberos"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.udp(88),
+      "For: Kerberos"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(445),
+      "For: SMB"
+    );
+    securityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(1723),
+      "For: AD"
     );
 
     const instance = new ec2.Instance(this, "ad-instance", {
@@ -71,9 +150,7 @@ export class CdkStack extends cdk.Stack {
     });
 
     // .sh or .ps2 file for configuration
-    // instance.addUserData(
-    //   fs.readFileSync('lib/user_script.sh', 'utf8')
-    // )
+    instance.addUserData(fs.readFileSync("lib/ad-setup-script.ps1", "utf8"));
     new cdk.CfnOutput(this, "ad-instance-public-ip", {
       value: instance.instancePublicIp,
     });
